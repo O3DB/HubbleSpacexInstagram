@@ -52,6 +52,8 @@ logger = logging.getLogger('main')
 if __name__ == '__main__':
     from log import setup_logging
     from tools import create_folder, download_image
+    from spacex import fetch_spacex_latest_launch
+    from hubble import fetch_hubble_collection, fetch_hubble_image
 
     setup_logging()
     
@@ -62,4 +64,7 @@ if __name__ == '__main__':
     # logger.error('error message')
     # logger.critical('critical message')
 
-    download_image('https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg')
+    # download_image('https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg', path='dfdf')
+    # fetch_spacex_latest_launch()
+    # fetch_hubble_collection('spacecraft')
+    fetch_hubble_image(1)

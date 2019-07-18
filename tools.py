@@ -1,51 +1,41 @@
 import os
 import requests
 import logging
+from config import verify_ssl
 
 
 logger = logging.getLogger(__name__)
+
 
 def create_folder(folder_path):
     logger.debug(f'Executed create_folder func to create {folder_path}')
     try:
         os.makedirs(folder_path)
-        logger.info(f'Folder {folder_path} created')
-    except Exception as e:
-        logger.error(f'Folder not created. {e}')
-        pass
+        logger.debug(f'Folder {folder_path} created')
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+        logger.debug('Folder allready exists')
 
 
-def make_request(url):
+def make_request(url, payload=None, timeout=3):
     logger.debug(f'Executed get_image({url})')
     try:
-        response = requests.get(url,timeout=3)
-        logger.info(f'Response status code {response.status_code}')
+        response = requests.get(url, params=payload, timeout=timeout, verify=verify_ssl)
+        logger.debug(f'Response status code {response.status_code}')
         if response.status_code // 100 == 2:
             return response
     except Exception as e:
         logger.error(e)
 
 
-def check_mime_type(response, target_type):
-
-
-
-
-
-
-# def get_image
-
 def save_binary_content(content, file_path):
     logger.debug(f'Saving content to the {file_path}')
     with open(file_path, 'wb') as file:
-        try:
-            file.write(content)
-            logger.info('Content succesfully saved')
-        except Extension as e:
-            logger.error(f'Error has occured while saving content. {e}')
+        file.write(content)
 
 
-def define_extension_from_url(url):
+def define_image_extension_from_url(url):
     logger.debug('Defining extension of {url}')
     extensions = ['jpg', 'jpeg', 'png', 'bmp', 'tif']
     if any(img_extension in url for img_extension in extensions):
@@ -55,23 +45,31 @@ def define_extension_from_url(url):
     logger.warning(f'Extension not in {extensions}')
 
 
-def download_image(url, filename=None, path=None):
-    logger.debug(f'download_image execudet with argument: {url}')
-    extension = define_extension_from_url(url)
-    if not extension:
-        pass
+def check_mime_type(response, type='image'):
+    '''function takes response object,
+    compare MIME type with passed type (image by default)
+    and returns document's extension
+    '''
+    content_type = response.headers['content-type']
+    logger.debug(f'Content type is {content_type}')
+    if type not in content_type:
+        return
+    return content_type.split('/')[-1]
+
+
+def download_image(url, filename='image', path='.'):
+    logger.info(f'Start image downloading from {url}')
     response = make_request(url)
     if not response:
-        pass
-    if 'image' not in response.headers['content-type']:
-        logger.warning(f'Mime type not image: {response.headers['content-type']}')
-    if filename:
-        
-        file_path = filename + '.' + extension
-    else:
-        filename = url.split('/')[-1]
-    if path:
-        file_path = os.path.join(path, file_path)
-    save_binary_content()
+        logger.info("Didn't get 2xx response. Function stoped")
+        return
+    extension = check_mime_type(response)
+    if not extension:
+        logger.info('Extension not defined. Function stoped')
+        return
+    logger.info(f'Get image content with {extension} extension')
+    filename = filename + '.' + extension
+    file_path = os.path.join(path, filename)
 
-
+    save_binary_content(response.content, file_path)
+    logger.info(f'Successfully downloaded {file_path}')
