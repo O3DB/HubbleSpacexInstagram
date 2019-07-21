@@ -4,7 +4,7 @@
 * скачивать фотографии с последнего запуска SpaceX
 * загружать фотографии в Инстаграм
 
-*в коде использованы функции из библиотеки [Instacron https://github.com/basnijholt/instacron]*
+*в коде использованы функции из библиотеки [Instacron](https://github.com/basnijholt/instacron)*
 
 ### Как установить
 
