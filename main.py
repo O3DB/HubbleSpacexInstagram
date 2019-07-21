@@ -1,70 +1,48 @@
 import os
 import logging
+import argparse
+import sys
 
-#composite tools
-def download_image(url, file_path):
-    response = safety_request(url)
-    if isinstance(response, str):
-        return response
-    if 'image' in response.headers['content-type']:
-        return response.status_code
-    else:
-        return f'No image found on the url: {url}'
-    save_binary_content(response.content, file_path)
+from log import setup_logging
+from tools import create_folder, download_image
+from spacex import fetch_spacex_latest_launch
+from hubble import fetch_hubble_collection, fetch_hubble_image
+from instagram import upload_photos_to_instagram
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Script supports: downloading hubble collections photos\
+        or SpaceX last launch photos and upploading photos from /images\
+        to Instagram")
+    parser.add_argument('-hbl', '--hubble', help='enter collection name to download')
+    parser.add_argument('-s', '--spacex', help='qty of latest spacex launch photos to download', type=int)
+    parser.add_argument('-inst', '--instagram', help='pass timeout value between uploads', type=int)
+    return parser.parse_args()
 
 
-#SpaceX
-def download_spaceX_image(image_url, folder_path):
-    img_extension = define_extension_from_url(image_url)
-    if not img_extension:
-        pass
-    file_path = os.path.join(folder_path, filename + '_' + str(index) + '.' + img_extension)
-    download_image(image_url, file_path)
-
-
-# def fetch_spacex_last_launch_images(folder_path='downloads/spacex'):
-#     url = 'https://api.spacexdata.com/v3/launches/latest'
-#     filename = 'spaceX_last_launch'
-
-#     create_folder(folder_path)
-
-#     response = safety_request(url)
-#     if isinstance(response, str):
-#         return response
-#     image_urls = response.json()['links']['flickr_images']
-
-#     for index
-
-#     rs = (grequests.get(url) for url in image_urls)
-#     for index, response in enumerate(grequests.map(rs)):
-#         print(response.content)
-#         print(index)
-#         file_path = os.path.join(folder_path, filename + '_' + str(index) + '.' + 'jpg')
-#         print(file_path)
-#         save_binary_content(response.content, file_path)
-
-
-
-
-logger = logging.getLogger('main')
-if __name__ == '__main__':
-    from log import setup_logging
-    from tools import create_folder, download_image
-    from spacex import fetch_spacex_latest_launch
-    from hubble import fetch_hubble_collection, fetch_hubble_image
-
+def main():
+    logger = logging.getLogger('main')
     setup_logging()
-    
+    logger.info('Program started')
 
-    # logger.debug('debug message')
-    # logger.info('info message')
-    # logger.warning('warn message')
-    # logger.error('error message')
-    # logger.critical('critical message')
+    args = parse_args()
+    if len(sys.argv) <=1:
+        logger.info('No arguments passed. Program can not be started')
+        print('Please input at least one argument and run script again')
+        return
+    logger.info(f'Program started with args: {args}')
+    hubble_collection = args.hubble
+    spacex_qty = args.spacex
+    instagram_timeout = args.instagram
 
-    # download_image('https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg', path='dfdf')
-    # fetch_spacex_latest_launch()
-    # fetch_hubble_collection('spacecraft')
-    fetch_hubble_image(1)
+    if hubble_collection:
+        fetch_hubble_collection(hubble_collection)
+    if spacex_qty:
+        fetch_spacex_latest_launch(qty=spacex_qty)
+    if instagram_timeout:
+        upload_photos_to_instagram(timeout=instagram_timeout)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,5 @@
-import os
+import os, errno
+from os import walk
 import requests
 import logging
 from config import verify_ssl
@@ -55,6 +56,15 @@ def check_mime_type(response, type='image'):
     if type not in content_type:
         return
     return content_type.split('/')[-1]
+
+
+def scan_for_files_in_folder(foldername, recursion=False):
+    files = []
+    for (dirpath, dirnames, filenames) in walk(foldername):
+        files.extend(filenames)
+        if not recursion:
+            break
+    return files
 
 
 def download_image(url, filename='image', path='.'):

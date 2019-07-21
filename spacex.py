@@ -5,10 +5,10 @@ logger = logging.getLogger(__name__)
 
 
 
-def fetch_spacex_latest_launch(path='downloads/spacex', filename_template='spacex'):
+def fetch_spacex_latest_launch(path='images/spacex', filename_template='spacex', qty=1):
     logger.info('Starting to fetching spacex last launch photos')
     url = 'https://api.spacexdata.com/v3/launches/latest'
-    create_folder('')
+    create_folder(path)
     response = make_request(url)
     if not response:
         logger.info("Didn't get 2xx response. Function stoped")
@@ -19,6 +19,7 @@ def fetch_spacex_latest_launch(path='downloads/spacex', filename_template='space
         logger.error(f"Urls didn't collected. {e}")
     logger.info('Images urls received')
 
-    for index, url in enumerate(urls):
+    qty = min(qty, len(urls))
+    for index, url in enumerate(urls[:qty]):
         filename = '{}_{}'.format(filename_template, index)
         download_image(url, filename, path)
