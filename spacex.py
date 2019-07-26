@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 def fetch_spacex_latest_launch(path='images/spacex', filename_template='spacex', qty=1):
     logger.info('Starting to fetching spacex last launch photos')
     url = 'https://api.spacexdata.com/v3/launches/latest'
-    create_folder(path)
+    os.makedirs(path, exist_ok=True)
     response = make_request(url)
     if not response:
         logger.info("Didn't get 2xx response. Function stoped")

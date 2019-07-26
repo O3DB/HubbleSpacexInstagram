@@ -37,7 +37,8 @@ def main():
     instagram_timeout = args.instagram
 
     if hubble_collection:
-        fetch_hubble_collection(hubble_collection)
+        if not fetch_hubble_collection(hubble_collection):
+            print('Collection not found')
     if spacex_qty:
         fetch_spacex_latest_launch(qty=spacex_qty)
     if instagram_timeout:
@@ -46,3 +47,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
