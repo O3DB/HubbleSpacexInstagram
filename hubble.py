@@ -3,6 +3,10 @@ import os
 import requests
 
 from tools import download_image
+from errors import merry
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_hubble_collection_ids(collection_name):
@@ -23,12 +27,14 @@ def download_hubble_image(image_id, path='images', filename=None):
         filename = 'hubble_{}'.format(image_id)
     download_image(image_url, path, filename, verify=False)
 
-
-def fetch_hubble_collection(collection_name, path='images', max_qty=None):
+@merry._try
+def fetch_hubble_collection(collection_name, path='images', qty=None):
     image_ids = get_hubble_collection_ids(collection_name)
-    if not max_qty:
-        max_qty = len(image_ids)
-    max_qty = min(max_qty, len(image_ids))
+    if not image_ids:
+        logger.warning(f'No photos found in collection "{collection_name}""')
+    if not qty:
+        qty = len(image_ids)
+    qty = min(qty, len(image_ids))
 
-    for image_id in image_ids[:max_qty]:
+    for image_id in image_ids[:qty]:
         download_hubble_image(image_id)

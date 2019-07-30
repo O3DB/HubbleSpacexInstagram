@@ -34,11 +34,10 @@ def download_image(url, path='images', filename='image', verify=True):
     file_path = os.path.join(path, filename)
     save_image(content, file_path)
 
-#TODO вместо возврата файлов, возвращать путь к файлу
+
 def scan_for_files_in_folder(foldername, recursion=False):
     files = []
     for (dirpath, dirnames, filenames) in walk(foldername):
-        files.extend(filenames)
-        if not recursion:
-            break
+        for filename in filenames:
+            files.append(os.path.join(dirpath, filename))
     return files

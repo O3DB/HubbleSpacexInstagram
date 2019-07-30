@@ -72,11 +72,14 @@ def strip_exif(img):
     return image_without_exif
 
 
-def upload_photos_to_instagram(foldername, captions=['Good', 'Nice photo'], timeout=30):
+def upload_photos_to_instagram(foldername='images', captions=['Good', 'Nice photo'], timeout=30, qty=1):
     bot = Bot()
     bot.login(username=USERNAME, password=PASSWORD)
     photos = scan_for_files_in_folder(foldername)
-    for photo in photos:
+    if not qty:
+        qty = len(photos)
+    qty = min(qty, len(photos))
+    for photo in photos[:qty]:
         photo_path = os.path.join(foldername, photo)
         pic = fix_photo(photo_path)
         caption = random.choice(captions)
