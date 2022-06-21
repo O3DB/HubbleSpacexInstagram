@@ -1,5 +1,5 @@
 instabot==0.52.0
-numpy==1.16.4
+numpy==1.22.0
 merry==0.2.2
 Pillow==6.1.0
 python-dotenv==0.10.3
